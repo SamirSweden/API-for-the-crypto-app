@@ -6,7 +6,7 @@ app = FastAPI()
 
 @app.get("/users")
 def get_users():
-    return  {"user": "Ryan"}
+    return  {"users": "Ryan, st"}
 
 @app.get("/status")
 def get_users():
