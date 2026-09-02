@@ -10,4 +10,4 @@ def get_users():
 
 @app.get("/status")
 def get_users():
-    return  {"status": "http 200 ok"}
+    return  {"status": "http 201 ok"}
