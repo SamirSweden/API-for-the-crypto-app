@@ -9,7 +9,9 @@ app = FastAPI()
 def root():
     return {"message": "Hello Ryan"}
 
-
+@app.get("/api/sx")
+def sx_handler():
+    return {"messageFromRyan": "Ich leibe dich"}
 
 @app.get("/api/love")
 def love():
