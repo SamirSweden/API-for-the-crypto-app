@@ -5,3 +5,6 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.117.1",
 ]
+
+[tool.vercel]
+entrypoint = "api/index.py"
