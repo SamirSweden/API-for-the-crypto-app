@@ -21,6 +21,5 @@ dist/
 .vscode/
 
 
-# Project config
-pyproject.toml
+
 
