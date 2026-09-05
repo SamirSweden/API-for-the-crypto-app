@@ -1,7 +1,23 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
+from app.routers.crypto import router as crypto_router
 app = FastAPI()
+
+
+origin = [
+    "https://kraken-umber.vercel.app",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origin,
+    allow_credentials=True,
+    allow_methods=["GET, POST"],
+    allow_headers=["*"],
+)
+
+app.include_router(crypto_router)
 
 @app.get("/")
 def root():
