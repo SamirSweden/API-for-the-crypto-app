@@ -4,6 +4,7 @@ from urllib import request
 import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -15,6 +16,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class RegisterUser(BaseModel):
+    username: str
 
 # 2. Роуты
 @app.get("/")
@@ -58,6 +62,14 @@ async def get_price(coin_id: str):
                 detail=f"Connection error to CoinGecko: {str(e)}"
             )
 
+
+
+@app.get("/api/ip")
+async def get_user_ip(request: Request):
+    return {
+        "ip": request.client.host,
+    }
+
 @app.post("/register")
 async def register(username: str, request: Request):
     client_api = request.client.host
@@ -92,6 +104,12 @@ async def register(username: str, request: Request):
             )
 
 
+@app.post("/api/register")
+async def register_user(data: RegisterUser, request: Request):
+    username = data.username
+    ip = request.client.host
 
-
-
+    return {
+        "userName": data.username,
+        "ip": ip
+    }
