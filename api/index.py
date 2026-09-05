@@ -1,5 +1,8 @@
+from http import client
+from urllib import request
+
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -17,6 +20,7 @@ app.add_middleware(
 @app.get("/")
 def home():
     return {"message": "200 ok"}
+
 
 
 @app.get("/api/sx")
@@ -53,3 +57,41 @@ async def get_price(coin_id: str):
                 status_code=502,
                 detail=f"Connection error to CoinGecko: {str(e)}"
             )
+
+@app.post("/register")
+async def register(username: str, request: Request):
+    client_api = request.client.host
+    forwarded_for = request.headers.get("x-forwarded-for")
+
+    if forwarded_for:
+        client_api = forwarded_for.split(",")[0].strip()
+
+
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(
+                f"https://ipapi.co/{client_api}/json/"
+            )
+
+            data = response.json()
+
+            country = data.get["country_name", "Unknown"]
+            country_code = data.get["country_code", ""]
+
+            return {
+                "username": username,
+                "data": client_api,
+                "country": country,
+                "country_code": country_code
+            }
+
+        except httpx.HTTPStatusError:
+            raise HTTPException(
+                detail="Could not find ip",
+                status_code=404
+            )
+
+
+
+
+
