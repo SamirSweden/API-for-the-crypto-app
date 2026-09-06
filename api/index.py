@@ -91,7 +91,8 @@ def register(data: RegisterRequest):
     users[data.username] = data.password
 
     return {
-        "message": "Registered successfully"
+        "message": "Registered successfully",
+        "username": data.username,
     }
 
 
