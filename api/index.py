@@ -1,6 +1,3 @@
-from http import client
-from urllib import request
-
 import httpx
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -73,12 +70,75 @@ async def get_user_ip(request: Request):
 
 
 
-@app.post("/api/register")
-async def register_user(data: RegisterUser, request: Request):
-    username = data.username
-    ip = request.client.host
+users = {}
+
+class RegisterRequest(BaseModel):
+    username: str
+    password: str
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/register")
+def register(data: RegisterRequest):
+    if data.username in users:
+        raise HTTPException(
+            status_code=400,
+            detail="Username is already registered"
+        )
+    users[data.username] = data.password
 
     return {
-        "userName": username,
-        "ip": ip
+        "message": "Registered successfully"
     }
+
+
+@app.post("/login")
+def login(data: LoginRequest):
+    if data.username not in users:
+        raise HTTPException(
+            status_code=401,
+            detail="User not found"
+        )
+    if users[data.username] != data.password:
+        raise HTTPException(
+            status_code=401,
+            detail="Wrong  password"
+        )
+
+    return {
+        "message": "Logged in successfully",
+        "username": data.username
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
