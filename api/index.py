@@ -70,64 +70,35 @@ async def get_user_ip(request: Request):
 
 
 
-users = {}
 
-class RegisterRequest(BaseModel):
-    username: str
-    password: str
+
+users = {
+    "samir": "12345",
+    "haylin":"123456"
+}
 
 class LoginRequest(BaseModel):
     username: str
     password: str
 
+class LoginResponse(BaseModel):
+    message: str
+    username: str
 
-@app.post("/register")
-def register(data: RegisterRequest):
-    if data.username in users:
+
+@app.post("/api/login", response_model=LoginResponse)
+def login(data: LoginRequest):
+
+    if data.username not in users or users[data.username] != data.password:
         raise HTTPException(
-            status_code=400,
-            detail="Username is already registered"
+            status_code=401,
+            detail="Invalid username or password"
         )
-    users[data.username] = data.password
 
     return {
-        "message": "Registered successfully",
+        "message": "Login successful",
         "username": data.username,
     }
-
-
-@app.post("/login")
-def login(data: LoginRequest):
-    if data.username not in users:
-        raise HTTPException(
-            status_code=401,
-            detail="User not found"
-        )
-    if users[data.username] != data.password:
-        raise HTTPException(
-            status_code=401,
-            detail="Wrong  password"
-        )
-
-    return {
-        "message": "Logged in successfully",
-        "username": data.username
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
