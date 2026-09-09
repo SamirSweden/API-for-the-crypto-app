@@ -3,9 +3,10 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+
+
 app = FastAPI()
 
-# 1. Настройка CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://kraken-umber.vercel.app"],
@@ -17,10 +18,11 @@ app.add_middleware(
 class RegisterUser(BaseModel):
     username: str
 
-# 2. Роуты
 @app.get("/")
 def home():
     return {"message": "200 ok"}
+
+
 
 
 
@@ -66,6 +68,20 @@ async def get_user_ip(request: Request):
     return {
         "ip": request.client.host,
     }
+
+
+
+@app.get("/api/price/{symbol}")
+async def get_price(symbol: str):
+    symbol = symbol.lower()
+
+    url = "https://api.binance.com/api/v3/ticker/price"
+
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        response = await client.get(
+            url,
+            params={"symbol": symbol}
+        )
 
 
 
@@ -117,6 +133,8 @@ def register(data: RegisterRequest):
         "message": "User registered successfully",
         "username": data.username
     }
+
+
 
 
 
