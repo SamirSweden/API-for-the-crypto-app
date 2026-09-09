@@ -154,3 +154,22 @@ def login(data: LoginRequest):
         "message": "Login successful",
         "username": data.username
     }
+
+
+
+
+class UserRequestLogin(BaseModel):
+    nickname: str
+    password: str
+
+@app.post("/api/login/user")
+async def user_login(data: UserRequestLogin):
+    return {
+        "message":"User Login successful",
+        "nickname": data.nickname
+    }
+
+
+
+
+
