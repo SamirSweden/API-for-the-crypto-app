@@ -72,10 +72,15 @@ async def get_user_ip(request: Request):
 
 
 
-users = {
-    "samir": "12345",
-    "haylin":"123456"
-}
+users = {}
+
+class RegisterRequest(BaseModel):
+    username: str
+    password: str
+
+class RegisterResponse(BaseModel):
+    message: str
+    username: str
 
 class LoginRequest(BaseModel):
     username: str
@@ -85,11 +90,43 @@ class LoginResponse(BaseModel):
     message: str
     username: str
 
+@app.post("/api/register", response_model=RegisterResponse)
+def register(data: RegisterRequest):
+    if data.username in users:
+        raise HTTPException (
+            status_code=400,
+            detail="Username already exists"
+        )
+
+    if len(data.username) < 3:
+        raise HTTPException(
+            status_code=400,
+            detail="Username must be at least 3 characters"
+        )
+
+
+    if len(data.password) < 8:
+        raise HTTPException(
+            status_code=400,
+            detail="Password must be at least 8 characters"
+        )
+
+    users[data.username] = data.password
+
+    return {
+        "message": "User registered successfully",
+        "username": data.username
+    }
+
+
 
 @app.post("/api/login", response_model=LoginResponse)
 def login(data: LoginRequest):
 
-    if data.username not in users or users[data.username] != data.password:
+    if(
+        data.username not in users 
+        or users[data.username] != data.password
+    ): 
         raise HTTPException(
             status_code=401,
             detail="Invalid username or password"
@@ -97,20 +134,5 @@ def login(data: LoginRequest):
 
     return {
         "message": "Login successful",
-        "username": data.username,
+        "username": data.username
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
