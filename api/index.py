@@ -74,19 +74,20 @@ async def get_user_ip(request: Request):
 @app.get("/api/price/{symbol}")
 async def get_price(symbol: str):
     symbol = symbol.lower()
+    result = []
 
     url = "https://api.binance.com/api/v3/ticker/price"
 
     async with httpx.AsyncClient(timeout=5.0) as client:
-        response = await client.get(
-            url,
-            params={"symbol": symbol}
-        )
+        response = await client.get(url , params={"symbol":symbol})
+        data = response.json()
 
+        result.append({
+            "symbol":data['symbol'],
+            "price": data['price']
+        })
 
-
-
-
+    return result
 
 users = {}
 
