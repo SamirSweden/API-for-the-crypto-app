@@ -83,6 +83,8 @@ async def get_price(symbol: str):
         data = response.json()
         response.raise_for_status()
 
+        print(response.status_code)
+        print(response.text)
         result.append({
             "symbol":data['symbol'],
             "price": data['price']
