@@ -80,17 +80,23 @@ async def get_price(symbol: str):
 
     async with httpx.AsyncClient(timeout=5.0) as client:
         response = await client.get(url , params={"symbol":symbol})
+
+
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=response.text
+            )
         data = response.json()
-        response.raise_for_status()
 
         print(response.status_code)
         print(response.text)
-        result.append({
+
+        return {
             "symbol":data['symbol'],
             "price": data['price']
-        })
+        }
 
-    return result
 
 users = {}
 
