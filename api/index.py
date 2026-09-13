@@ -36,6 +36,13 @@ app.add_middleware(
 
 
 
+@app.get("/api/sx")
+def get_sx():
+    return {
+        "message": "love you ❤️"
+    }
+
+
 
 class LoginRequest(BaseModel):
     username: str
