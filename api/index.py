@@ -43,6 +43,11 @@ app.add_middleware(
 
 @app.get("/")
 def root():
+    return {"message": "http 200 ok"}
+
+
+@app.get("/api/sx")
+def sx_team():
     return {"message": "Love you"}
 
 
