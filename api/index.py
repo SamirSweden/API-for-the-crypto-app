@@ -66,6 +66,10 @@ class RegisterRequest(BaseModel):
 async def root():
     return {"message": "api is running"}
 
+@app.get("/")
+async def root():
+    return {"message": "200 ok"}
+
 @app.post("/api/register")
 async def register(data: RegisterRequest):
     username = data.username.strip()
