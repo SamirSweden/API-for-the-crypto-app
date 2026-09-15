@@ -1,14 +1,20 @@
+import os
 from fastapi import FastAPI, Request,HTTPException,Depends,status
 from fastapi.middleware.cors import  CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
-import secrets
+from dotenv import load_dotenv
 
-
+load_dotenv()
 
 app = FastAPI()
 
-SECRET_TOKEN = secrets.token_hex(32)
+SECRET_TOKEN = os.getenv("SECRET_TOKEN")
+
+if not SECRET_TOKEN:
+    raise RuntimeError(
+        "SECRET_TOKEN is not configured"
+    )
 
 origins = [
     "http://localhost:3000",
@@ -31,17 +37,13 @@ app.add_middleware(
     session_cookie="session",
     max_age=14 * 24 * 60 * 60,
     same_site="lax",
-    https_only=False,
+    https_only=True,
 )
 
 
-
-@app.get("/api/sx")
-def get_sx():
-    return {
-        "message": "love you ❤️"
-    }
-
+@app.get("/")
+def root():
+    return {"message": "Love you"}
 
 
 class LoginRequest(BaseModel):
@@ -96,8 +98,4 @@ async def protected_route(user: dict = Depends(get_current_user)):
         "message": f"Hello {user['full_name']}! This is a protected route.",
         "user": user
     }
-
-
-
-
 
