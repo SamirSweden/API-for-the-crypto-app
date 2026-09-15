@@ -38,7 +38,7 @@ app.add_middleware(
     secret_key=SECRET_TOKEN,
     max_age=60 * 60 * 24 * 14,
     same_site="lax",
-    https_only=False,
+    https_only=True,
 )
 
 
