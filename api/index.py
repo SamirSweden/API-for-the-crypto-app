@@ -1,24 +1,8 @@
-import os
-from dotenv import load_dotenv
-from fastapi import FastAPI,HTTPException, status
-from passlib.context import CryptContext
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel,Field
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
-from typing import Dict
-
-
-load_dotenv()
 
 app = FastAPI()
-
-
-SECRET_TOKEN = os.getenv("SECRET_TOKEN")
-
-if not SECRET_TOKEN:
-    raise RuntimeError("SECRET_TOKEN not set")
-
-
 
 origins = [
     "http://localhost:3000",
@@ -29,73 +13,59 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST","DELETE"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
-app.add_middleware(
-    SessionMiddleware,
-    secret_key=SECRET_TOKEN,
-    max_age=60 * 60 * 24 * 14,
-    same_site="lax",
-    https_only=True,
-)
+
+fake_db = {}
 
 
 
-pwd_context = CryptContext(
-    schemes=["argon2"],
-    deprecated="auto",
-)
 
-users: Dict[str, dict] = {}
-
-class RegisterRequest(BaseModel):
-    username: str = Field(
-        min_length=3,
-        max_length=30,
-    )
-
-    password: str = Field(
-        min_length=6,
-        max_length=128,
-    )
-
-
-@app.get("/api")
-async def root():
-    return {"message": "api is running"}
+class PinRequest(BaseModel):
+    user_id: str
+    pin: str = Field(..., min_length=4, max_length=4, description="Pin 4 digits")
 
 @app.get("/")
 async def root():
-    return {"message": "200 ok"}
+    return {
+        "message": "Welcome to Kraken-Su API",
+    }
 
-@app.post("/api/register")
-async def register(data: RegisterRequest):
-    username = data.username.strip()
-
-    if not username:
+@app.post("/set-pin")
+async def set_pin(data: PinRequest):
+    if not data.pin.isdigit():
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already exists"
+            status_code=401,
+            detail="Pin must be an integer",
+        )
+    fake_db[data.user_id] = data.pin
+    return {
+        "status": "success",
+        "message": "Pin set successfully",
+    }
+
+
+@app.post("/verify-pin")
+async def verify_pin(data: PinRequest):
+    stored_pin = fake_db.get(data.user_id)
+
+    if not stored_pin or stored_pin == "":
+        raise HTTPException(
+            status_code=404,
+            detail="pin-code not found or user_id is invalid",
         )
 
-    password_hash = pwd_context.hash(data.password)
-
-    users[username] = {
-        "username":username,
-        "password_hash":password_hash
-    }
+    if stored_pin != data.pin:
+        raise HTTPException(
+            status_code=401,
+            detail="Pin code does not match, try again",
+        )
 
     return {
-        "message": "Registration successful",
-        "username": username
+        "status": "success",
+        "message": "Access granted",
     }
-
-
-
-
-
-
 
 
