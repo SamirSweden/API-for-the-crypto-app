@@ -48,7 +48,7 @@ def root():
 
 @app.get("/api/sx")
 def sx_team():
-    return {"message": "Love you"}
+    return {"message": "ich leibe dich"}
 
 
 class LoginRequest(BaseModel):
