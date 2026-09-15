@@ -33,7 +33,7 @@ async def root():
         "message": "Welcome to Kraken-Su API",
     }
 
-@app.post("/set-pin")
+@app.post("/api/set-pin")
 async def set_pin(data: PinRequest):
     if not data.pin.isdigit():
         raise HTTPException(
@@ -47,7 +47,7 @@ async def set_pin(data: PinRequest):
     }
 
 
-@app.post("/verify-pin")
+@app.post("/api/verify-pin")
 async def verify_pin(data: PinRequest):
     stored_pin = fake_db.get(data.user_id)
 
