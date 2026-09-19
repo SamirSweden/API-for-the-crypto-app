@@ -212,5 +212,6 @@ def me(token: str):
     return {"email": session["email"]}
 
 
-
-
+@app.get("/sx")
+def love():
+    return {"message": "Love you"}
