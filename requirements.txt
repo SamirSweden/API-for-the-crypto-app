@@ -2,3 +2,7 @@ fastapi
 uvicorn
 httpx
 pydantic
+itsdangerous>=2.2.0
+passlib[argon2]
+python-dotenv
+requests

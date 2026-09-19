@@ -20,6 +20,7 @@ dist/
 .idea/
 .vscode/
 
-
+.env
+app/cli
 
 
