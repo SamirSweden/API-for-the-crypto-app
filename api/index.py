@@ -1,3 +1,4 @@
+import email
 import random
 import uuid
 import requests
@@ -7,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel,Field,EmailStr
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from fastapi.responses import HTMLResponse
 
 load_dotenv()
 app = FastAPI()
@@ -168,17 +170,63 @@ def send_code(email: str, code: str):
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY,detail=f"we couldn't send you code, try again later")
 
 
+
+
+
+
+
+TEMPLATE = """
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>KrakenCoin Verification</title>
+</head>
+
+<body>
+
+    <h2 style="color:black;font-size:30px;font-family:Arial,sans-serif;text-transform: uppercase;">kraken.su</h2>
+
+    <h1 style="font-size:21px;font-family:Arial,sans-serif;color:#111">👋 Hello dear user!</h1>
+
+    <p>Hope you are well.</p>
+
+    <p>Your verification code:</p>
+
+    <div style="
+        font-size: 36px;
+        font-weight: bold;
+        letter-spacing: 8px;
+        color: #00ff9d;
+    ">
+        {code}
+    </div>
+
+    <p>
+        This code will expire in 10 minutes.
+    </p>
+
+</body>
+</html>
+"""
+
+
 @app.post("/auth/request-code")
-def request_code(body: RequestCodeBody):
+def request_code(body:RequestCodeBody):
     code = f"{random.randint(0,9999):04d}"
     codes[body.email] = {
-        "code": code,
-        "expires": time.time() + CODE_TTL_SECONDS,
-        "attempts": 0
+        "code":code,
+        "expires_at": time.time() + CODE_TTL_SECONDS,
+        "attempts": 0,
     }
 
-    send_code(body.email, code)
-    return {"message": "code sent successfully"}
+    html = TEMPLATE.format(code=code)
+
+    send_code(email=body.email, code=code)
+    return {
+        "message": "code sent with success"
+    }
 
 @app.post("/auth/verify-code")
 def verify_code(body: VerifyCodeBody):
@@ -187,7 +235,7 @@ def verify_code(body: VerifyCodeBody):
     if not record:
         raise HTTPException(status_code=400, detail="request for code")
 
-    if time.time() > record["expires"]:
+    if time.time() > record["expires_at"]:
         del codes[body.email]
         raise HTTPException(status_code=400, detail="email expired")
 
@@ -204,6 +252,8 @@ def verify_code(body: VerifyCodeBody):
     sessions[token] = {"email": body.email, "expires": time.time() + SESSION_TTL_SECONDS}
 
     return {"token": token}
+
+
 @app.get("/auth/me")
 def me(token: str):
     session = sessions.get(token)
@@ -215,3 +265,7 @@ def me(token: str):
 @app.get("/sx")
 def love():
     return {"message": "Love you"}
+
+
+
+
