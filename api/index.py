@@ -1,4 +1,3 @@
-import email
 import random
 import uuid
 import requests
@@ -8,7 +7,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel,Field,EmailStr
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from fastapi.responses import HTMLResponse
 
 load_dotenv()
 app = FastAPI()
