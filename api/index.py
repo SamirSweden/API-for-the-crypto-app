@@ -11,10 +11,12 @@ from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
 
+
 origins = [
     "http://localhost:3000",
     "https://kraken-su.vercel.app"
 ]
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -263,6 +265,39 @@ def me(token: str):
 @app.get("/sx")
 def love():
     return {"message": "Love you"}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

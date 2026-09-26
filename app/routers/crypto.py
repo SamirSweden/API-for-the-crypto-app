@@ -20,6 +20,6 @@ async def crypto_price(symbol: str):
 
     return {
         "symbol": data["symbol"],
-        "price": data["price"]
+        "price":  data["price"]
     }
 
