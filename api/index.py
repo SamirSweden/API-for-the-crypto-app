@@ -112,7 +112,7 @@ async def get_crypto():
         "vs_currencies": "usd",
     }
 
-    try: 
+    try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.get(url, params=params)
         resp.raise_for_status()
@@ -173,45 +173,6 @@ def send_code(email: str, code: str):
 
 
 
-
-
-TEMPLATE = """
-<!doctype html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <title>KrakenCoin Verification</title>
-</head>
-
-<body>
-
-    <h2 style="color:black;font-size:30px;font-family:Arial,sans-serif;text-transform: uppercase;">kraken.su</h2>
-
-    <h1 style="font-size:21px;font-family:Arial,sans-serif;color:#111">👋 Hello dear user!</h1>
-
-    <p>Hope you are well.</p>
-
-    <p>Your verification code:</p>
-
-    <div style="
-        font-size: 36px;
-        font-weight: bold;
-        letter-spacing: 8px;
-        color: #00ff9d;
-    ">
-        {code}
-    </div>
-
-    <p>
-        This code will expire in 10 minutes.
-    </p>
-
-</body>
-</html>
-"""
-
-
 @app.post("/auth/request-code")
 def request_code(body:RequestCodeBody):
     code = f"{random.randint(0,9999):04d}"
@@ -221,7 +182,6 @@ def request_code(body:RequestCodeBody):
         "attempts": 0,
     }
 
-    html = TEMPLATE.format(code=code)
 
     send_code(email=body.email, code=code)
     return {
@@ -265,40 +225,3 @@ def me(token: str):
 @app.get("/sx")
 def love():
     return {"message": "Love you"}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
