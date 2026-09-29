@@ -93,10 +93,19 @@ def login(data: AuthRequest):
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "http 200 ok"}
 
 
-
+@app.get("/api/haylin")
+def haylin():
+    return {
+        "status": "Princess",
+        "isSweet":True,
+        "isCute":True,
+        "isRyanLoves":True,
+        "bites": 100,
+        "message": "Самой красивой принцессе❤️",
+    }
 
 
 
