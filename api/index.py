@@ -1,5 +1,7 @@
+import uuid
+
 import httpx
-from fastapi import FastAPI , HTTPException,status
+from fastapi import FastAPI , HTTPException,status, UploadFile,File
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr, Field
 
@@ -115,5 +117,45 @@ async def get_all_prices():
 
 
 
+
+
+import os
+from dotenv import load_dotenv
+from supabase import Client, create_client
+
+load_dotenv()
+
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
+supabase = Client = create_client(
+    SUPABASE_URL,
+    SUPABASE_KEY
+)
+
+@app.post("/api/upload")
+async def upload_file(file: UploadFile = File(...)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="only images allowed")
+
+    content = await file.read()
+
+    filename = f"{uuid.uuid4()}-{file.filename}"
+
+    result = supabase.storage \
+        .from_("couple-photos") \
+        .upload(
+        filename,
+        content,
+        {
+            "content-type": file.content_type
+        }
+    )
+
+
+    return {
+        "message" : "Photo uploaded",
+        "filename": filename,
+    }
 
 
