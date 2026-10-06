@@ -92,18 +92,13 @@ def haylin():
     }
 
 
-import os
-from dotenv import load_dotenv
-load_dotenv()
 
-BINANCE_API_URL = os.getenv(
-    "BINANCE_API_URL",
-    "https://api.binance.com"
-)
+
+
 
 @app.get("/prices")
 async def get_all_prices():
-    url = f"{BINANCE_API_URL}/api/v3/ticker/price"
+    url = f"https://api.binance.com/api/v3/ticker/price"
 
     async with httpx.AsyncClient() as client:
         response = await client.get(url)
