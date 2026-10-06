@@ -98,10 +98,18 @@ def haylin():
 
 @app.get("/prices")
 async def get_all_prices():
-    url = f"https://api.binance.com/api/v3/ticker/price"
+    url = f"https://api.coingecko.com/api/v3/coins/markets"
+
+    params = {
+        "vs_currency": "usd",
+        "order": "market_cap_desc",
+        "per_page": 250,
+        "page": 1,
+        "sparkline": "false"
+    }
 
     async with httpx.AsyncClient() as client:
-        response = await client.get(url)
+        response = await client.get(url, params=params)
         response.raise_for_status()
         return response.json()
 
