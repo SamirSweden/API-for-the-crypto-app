@@ -106,9 +106,10 @@ async def get_all_prices():
     url = f"{BINANCE_API_URL}/api/v3/ticker/price"
 
     async with httpx.AsyncClient() as client:
-        resp = await client.get(url)
-        resp.raise_for_status()
-        return resp.json()
+        response = await client.get(url)
+        response.raise_for_status()
+        return response.json()
+
 
 
 
