@@ -1,28 +1,12 @@
+import httpx
 from fastapi import FastAPI , HTTPException,status
-from fastapi.middleware.cors import CORSMiddleware
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr, Field
 
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI()
 
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-origins = [
-    "http://localhost:3000",
-    "https://kraken-su.vercel.app"
-]
-
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["GET",  "POST"],
-    allow_headers=["*"],
-)
 
 users: dict[str, dict[str, str]] = {}
 
@@ -106,6 +90,26 @@ def haylin():
         "bites": 100,
         "message": "Самой красивой принцессе❤️",
     }
+
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+BINANCE_API_URL = os.getenv(
+    "BINANCE_API_URL",
+    "https://api.binance.com"
+)
+
+@app.get("/prices")
+async def get_all_prices():
+    url = f"{BINANCE_API_URL}/api/v3/ticker/price"
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(url)
+        resp.raise_for_status()
+        return resp.json()
+
 
 
 
