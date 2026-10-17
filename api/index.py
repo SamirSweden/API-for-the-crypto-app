@@ -26,7 +26,11 @@ class LoginRequest(BaseModel):
 
 users = set()
 
-
+@app.get("/")
+async def home():
+    return {
+        "message": "http 200 ok"
+    }
 
 @app.post("/api/login")
 async def login_user(data: LoginRequest):
