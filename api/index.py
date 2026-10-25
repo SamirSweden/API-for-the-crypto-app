@@ -3,8 +3,9 @@ from fastapi import FastAPI, HTTPException,status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import Field, BaseModel
 
+app = FastAPI(title="My English AI Dictionary")
 
-app = FastAPI()
+
 
 origins = [
     "https://kraken-su.vercel.app",
@@ -56,8 +57,101 @@ async def login_user(data: LoginRequest):
         "username": username
     }
 
-
+words = [
+    ["Hello / Hi", "Привет"],
+    ["Good morning", "Доброе утро"],
+    ["I'm up for that / Count me in / I'm down", "Я согласен, я за"],
+    ["I don't feel like it", "Не хочу, нет желания"],
+    ["I must be off / I have to go / I gotta go", "Мне пора идти"],
+    ["I see red", "Я злюсь"],
+    ["Take care", "Береги себя"],
+    ["Keep in mind", "Имей в виду, запомни"],
+    ["I have a favor to ask", "У меня к тебе просьба"],
+    ["Time will tell", "Время покажет"],
+]
     
+class TranslateRequest(BaseModel):
+    question: str = Field(min_length=1,max_length=500)
+
+
+def normalize(text: str) -> str:
+    return " ".join(text.casefold().strip().split())
+
+@app.post("/api/translate")
+async def translate(data: TranslateRequest):
+    question = normalize(data.question)
+    results=[]
+
+    for english, russian in words:
+        english_parts = [
+            normalize(part)
+            for part in english.split("/")
+        ]
+
+        russian_normalazed = normalize(russian)
+        if (
+            question in russian_normalazed
+            or russian_normalazed in question
+        ):
+            results.append({
+                "english":english,
+                "russian": russian
+            })
+        elif any(
+            question in part or part in question
+            for part in english_parts
+        ):
+            results.append({
+                "english": english,
+                "russian": russian
+            })
+
+    return {
+        "question":data.question,
+        "found": bool(results),
+        "results": results[:5],
+        "message": (
+            "Found in your dictionary"
+            if results
+            else "Phrase not found"
+        )
+
+    }
+
+
+
+@app.get("/api/words")
+async def get_words():
+    return {
+        "count": len(words),
+        "words":[
+            {"english":english ,"russian":russian}
+            for english ,russian in words
+        ]
+    }
+
+
+
+
+class UserRegister(BaseModel):
+    username: str
+    password: str
+
+class UserResponse(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/register")
+async def register(data: UserResponse):
+    return {
+        "message":"user registered",
+        "username": data.username,
+    }
+
+
+
+
 
 
 
