@@ -1,5 +1,6 @@
-
-from fastapi import FastAPI, HTTPException,status
+import secrets
+import hashlib
+from fastapi import FastAPI, HTTPException,status,Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import Field, BaseModel
 
@@ -133,21 +134,47 @@ async def get_words():
 
 
 
+# class UserRegister(BaseModel):
+#     username: str
+#     password: str
+#
+# class UserResponse(BaseModel):
+#     username: str
+#     password: str
+#
+#
+# @app.post("/register")
+# async def register(data: UserResponse):
+#     return {
+#         "message":"user registered",
+#         "username": data.username,
+#     }
+
+
+
 class UserRegister(BaseModel):
     username: str
     password: str
 
+
 class UserResponse(BaseModel):
     username: str
-    password: str
+    message: str
 
 
-@app.post("/register")
-async def register(data: UserResponse):
+@app.post("/register", response_model=UserResponse)
+async def register(data: UserRegister):
     return {
-        "message":"user registered",
+        "message": "user registered",
         "username": data.username,
     }
+
+
+
+
+
+
+
 
 
 
