@@ -1,8 +1,10 @@
 import secrets
+import httpx
 import hashlib
-from fastapi import FastAPI, HTTPException,status,Header
+from fastapi import FastAPI, HTTPException,status,Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import Field, BaseModel
+
 
 app = FastAPI(title="My English AI Dictionary")
 
@@ -170,16 +172,55 @@ async def register(data: UserRegister):
     }
 
 
+class CoinResponse(BaseModel):
+    id: str 
+    name: str
+    symbol: str
+    rank: int
+    price_usd: float
+    change_24h: float
 
+@app.get("/prices", response_model=list[CoinResponse])
+async def get_prices(
+    limit: int = Query(default=20, ge=1,le=100)
+):
+    url = "https://api.coinpaprika.com/v1/tickers"
 
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(
+                url,
+                params={"quotes":"USD"}
+            )
+            response.raise_for_status()
+            data = response.json()
 
+    except httpx.HTTPError as err:
+        raise HTTPException(
+            status_code=502,
+            detail="could not make request"
+        ) from err
 
+    coins = []
 
+    for coin in data[:limit]:
+        usd = coin.get("quotes",{}).get("USD", {})
+        price = usd.get("price")
+        change = usd.get("percent_change_24h")
 
+        if price is None:
+            continue
 
+        coins.append({
+            "id": coin["id"],
+            "name": coin["name"],
+            "symbol": coin["symbol"],
+            "rank": coin["rank"],
+            "price_usd": price,
+            "change_24h": change or 0.0,
+        })
 
-
-
+    return coins
 
 
 
